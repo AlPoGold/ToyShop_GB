@@ -3,42 +3,60 @@ import java.util.*;
 
 public class Main {
     public static void main(String[] args) {
-        Scanner scan = new Scanner(System.in);
-        ComparatorWeight c = new ComparatorWeight();
-        PriorityQueue<Toy> test1 = new PriorityQueue<>(c);
+        int quantityToWinner;
+        try {
+            Scanner scan = new Scanner(System.in);
+            ComparatorWeight c = new ComparatorWeight();
+            PriorityQueue<Toy> pq = new PriorityQueue<>(c);
 
-        System.out.println("Please, enter information about toy: id, weight, name with space between. " +
-                "When you finish, press button Enter 2 times: ");
-        while(true){
+            System.out.println("Please, enter information about toy: id, weight, name with space between. " +
+                    "When you finish, press button Enter 2 times: ");
+            while (true) {
 
-            String toyString = scan.nextLine();
-            if(toyString.equals("")) break;
-            if (!checkValidData(toyString)){
-                System.out.println("Please, reenter information about toy. Data invalid!");
-                continue;
+                String toyString = scan.nextLine();
+                if (toyString.equals("")) {
+                    break;
+                }
+                if (!checkValidData(toyString)) {
+                    System.out.println("Please, reenter information about toy. Data invalid!");
+                    continue;
+                }
+
+                Toy toy = getToy(toyString);
+                pq.add(toy);
             }
 
-            Toy toy = getToy(toyString);
-            test1.add(toy);
-        }
+            System.out.println("How many toys does machine need to give out? Maximum 10");
+            quantityToWinner = scan.nextInt();
+            scan.close();
 
-
-        ToyShop toyShop = new ToyShop(test1);
-        try(FileWriter file = new FileWriter("answer.txt", true)){
+            ToyShop toyShop = new ToyShop(pq);
             for (int i = 0; i < 10; i++) {
                 Toy toy = toyShop.getNextToy();
-                file.write(toy.getId()+" "+ toy.getName());
-                file.write("\n");
             }
 
-        }catch(Exception e){
-            e.printStackTrace();
+            try (FileWriter file = new FileWriter("answer.txt", true)) {
+                for (int i = 0; i < quantityToWinner; i++) {
+                    Toy toy = getToyFromQueue(toyShop);
+                    if(toy!=null) {
+                        file.write(toy.getId() + " " + toy.getName());
+                        file.write("\n");
+                    } else System.out.println("The toys' queue is over! ");
+                }
 
-        }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+
+            }
+
+    }catch(Exception e){
+            System.out.println("You didn't enter any information! Application will be closed!");
+    }
 
     }
 
-    private static boolean checkValidData(String toyString) {
+    public static boolean checkValidData(String toyString) {
         String[] data = toyString.split(" ");
         if(data.length<3) return false;
         try{
@@ -67,5 +85,8 @@ public class Main {
         return pq.poll();
     }
 
+    public static Toy getToyFromQueue(ToyShop toyShop){
+        return toyShop.getToyFromQueue();
+    }
 
 }

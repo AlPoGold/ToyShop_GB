@@ -1,9 +1,11 @@
-import java.util.PriorityQueue;
-import java.util.Random;
+import java.util.*;
 
 
 public class ToyShop {
-    private final PriorityQueue<Toy> allToys = new PriorityQueue<>();
+    private final ArrayList<Toy> allToys = new ArrayList<>();
+    private LinkedList<Toy> deliveryQueue = new LinkedList<>();
+
+
     private int totalWeight = 0;
     private final Random r = new Random();
 
@@ -30,10 +32,25 @@ public class ToyShop {
             currentWeight += toy.getWeight();
             if (currentWeight >= randInt) {
                 chosenToy = toy;
+                addToDeliveryQueue(chosenToy);
+                toy.setQuantity(toy.getQuantity()-1);
+                checkQuantity();
                 break;
             }
         }
         return chosenToy;
+    }
+
+    public void checkQuantity(){
+        allToys.removeIf(toy -> toy.getQuantity() == 0);
+    }
+
+    public void addToDeliveryQueue(Toy toy){
+        deliveryQueue.add(toy);
+    }
+
+    public Toy getToyFromQueue() {
+        return deliveryQueue.poll();
     }
 }
 
